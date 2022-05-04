@@ -1,0 +1,108 @@
+:root {
+  --body-background-color: #fff;
+  --body-text-color: hsl(214, 18%, 15%);
+  --header-table-background: #305e85;
+  --highlight-active-color: #fff;
+  --dg-bgcolor: #f3f3f3;
+  --title-color-1: #186cb8;
+  --border-color: rgba(82, 81, 81, 0.3);
+}  
+
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  outline: none;
+}
+
+body {
+  font-family: sans-serif;
+  font-size: 1rem;
+  background-color: var(--body-background-color);
+  color: var(--body-text-color);
+}
+
+h2 {
+  letter-spacing: 1.2px;
+  color: var(--title-color-1);
+  margin: 10px 15px;
+  padding: 0;
+}
+
+.container-table {
+  margin:15px;
+  box-shadow: 0 0 6px 1px var(--border-color);
+}
+
+/* table */
+.dg-grid {
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-size: 1em;
+  line-height: 1.2;
+  width: 100%;
+  user-select: none;
+}
+
+.dg-grid thead tr {
+  background-color: var(--header-table-background);
+  color: var(--highlight-active-color);
+  text-align: left;
+}
+
+.dg-grid th,
+.dg-grid td {
+  padding: 12px 15px;
+  overflow: hidden;
+  white-space: nowrap;
+  word-break: keep-all;
+  word-wrap: normal;
+  text-overflow: ellipsis;
+  -o-text-overflow: ellipsis;
+  box-sizing: border-box;
+  display: table-cell;
+}
+
+.dg-grid th {
+  position: relative;
+  user-select: none;
+  font-size: 1.2em;
+  font-weight: unset;
+}
+
+.dg-grid tbody tr:not(.edit-row):nth-of-type(even) {
+  background-color: var(--dg-bgcolor);
+}
+
+.dg-grid tbody tr:not(.edit-row):last-of-type {
+  border-bottom: 2px solid var(--header-table-background);
+}
+
+@media only screen and (min-device-width: 320px) and (max-device-width: 480px),
+  (max-width: 935px) {
+  .dg-grid {
+    border: 1px solid var(--dg-border);
+  }
+  .dg-grid th {
+    display: none;
+  }
+  .dg-grid colgroup {
+    display: none;
+  }
+  .dg-grid td {
+    display: block;
+  }
+  .dg-grid td:before {
+    content: attr(data-th) ':\00a0';
+    font-weight: bold;
+    color: var(--dg-color-4);
+    min-width: 8rem;
+    display: inline-block;
+  }
+  .dg-tab-columns .tab-content .overlay-name-fields {
+    display: block;
+  }
+  .title-additional {
+    display: block;
+  }
+}

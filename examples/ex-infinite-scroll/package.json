@@ -1,0 +1,25 @@
+{
+  "name": "infinite-scroll-example",
+  "description": "An example of infinite scroll, load data from server by page",
+  "version": "1.0.0",
+  "author": "Helen Nikitina <amaterasu.san@gmail.com>",
+  "scripts": {
+    "watch": "webpack --watch",
+    "build": "webpack"
+  },
+  "keywords": [
+    "infinite-scroll",
+    "pagination"
+  ],
+  "devDependencies": {
+    "clean-webpack-plugin": "^4.0.0",
+    "css-loader": "^6.7.1",
+    "html-webpack-plugin": "^5.5.0",
+    "mini-css-extract-plugin": "^2.6.0",
+    "webpack": "^5.72.0",
+    "webpack-cli": "^4.9.2"
+  },
+  "dependencies": {
+    "pagination-system": "^1.0.2"
+  }
+}

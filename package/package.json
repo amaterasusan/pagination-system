@@ -1,12 +1,16 @@
 {
   "name": "pagination-system",
-  "version": "1.0.2",
-  "description": "pagination system is a modern Vanilla JS and ES6 library for data pagination",
+  "version": "2.0.1",
+  "description": "data pagination system is a modern Vanilla JS and ES6 library for data pagination, sorting and filtering",
   "keywords": [
     "pagination",
     "pagination-system",
     "data-pagination",
     "data-pagination-system",
+    "filtering",
+    "sorting",
+    "data-filtering",
+    "data-sorting",
     "paging",
     "pagination-library",
     "javascript",
@@ -17,16 +21,17 @@
   "module": "dist/pagination-system.esm.min.js",
   "browser": "dist/pagination-system.umd.min.js",
   "main": "dist/pagination-system.esm.min.js",
+  "homepage": "https://github.com/amaterasusan/pagination-system",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amaterasusan/pagination-system.git"
+  },
   "scripts": {
     "build": "rollup -c",
     "watch": "rollup -c -w"
   },
   "author": "Helen Nikitina <amaterasu.san@gmail.com>",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/amaterasusan/pagination-system.git"
-  },
   "files": [
     "dist"
   ],

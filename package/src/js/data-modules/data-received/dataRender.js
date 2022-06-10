@@ -22,8 +22,19 @@ export class DataRender extends DataManager {
     }
 
     this.data = data;
+
+    if (this.data.length) {
+      // set Data Keys
+      this.setDataKeys(this.data[0]);
+
+      // checking cell content and replace html if need
+      this.checkContent(this.data);
+    }
+
+    this.storageDgData = this.data.slice(0);
     this.pages = [];
     this.lastChild = null;
+    this.realCountRecords = this.data.length;
   }
 
   /**
@@ -42,16 +53,30 @@ export class DataRender extends DataManager {
    * @returns {Promise}
    */
   renderData(numPage, isPageAdd = false) {
-    const dataPage = this.pages[numPage - 1];
+    const dataPage = this.pages[numPage - 1] || [];
+
     this.container.innerHTML = !isPageAdd
       ? this.dataRenderFn(dataPage)
       : this.container.innerHTML + this.dataRenderFn(dataPage);
 
+    // for autoload
     if (this.childSelector) {
       this.lastChild = this.getLastChild();
     }
 
     return Promise.resolve(this.lastChild);
+  }
+
+  /**
+   * if countRecords less then actual number of records
+   * @param {Number} countRecords
+   */
+  reduceNumberEntries(countRecords = null) {
+    if (Number.isFinite(countRecords)) {
+      this.data.length = countRecords;
+      this.storageDgData.length = countRecords;
+      this.realCountRecords = countRecords;
+    }
   }
 
   /**

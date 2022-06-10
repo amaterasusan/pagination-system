@@ -2,7 +2,7 @@ import { Pagination } from './pagination';
 
 /**
  * @class PagingControl
- * the  class that manages the behavior of pagination system
+ * a class that controls the behavior of the pagination system
  * @extends Pagination
  */
 export class PagingControl extends Pagination {
@@ -23,14 +23,15 @@ export class PagingControl extends Pagination {
    * init paging
    */
   init() {
-    this.renderPages().then((lastChild) => {
+    if (this.countRecords === 0) {
+      return Promise.resolve();
+    }
+
+    return this.renderPages().then((obj) => {
       this.initPaging();
       this.setLoadingDependencies();
       this.setEvent();
-
-      if (this.loading === 'auto') {
-        this.observe(lastChild);
-      }
+      this.renderPagination(obj);
     });
   }
 
@@ -132,8 +133,8 @@ export class PagingControl extends Pagination {
     this.numPage = 1;
     this.clearActiveBtns();
     this.setNumberPages();
-    this.renderPages().then(() => {
-      this.afterRenderData();
+    this.renderPages().then((obj) => {
+      this.renderPagination(obj);
     });
   }
 
@@ -207,22 +208,37 @@ export class PagingControl extends Pagination {
     return this.fire('renderPages', this.perPage, this.numPage);
   }
 
+  renderDataPagination() {
+    return this.renderPages().then((obj) => {
+      this.renderPagination(obj);
+    });
+  }
+
   /**
    * fire renderData event
    * @param {Boolean} isPageAdd - whether data is added to the page or the page is overwritten
    */
   renderData(isPageAdd) {
-    this.fire('renderData', this.numPage, isPageAdd).then((lastChild) => {
-      if (this.loading === 'auto') {
-        this.observe(lastChild);
-      }
-
-      this.afterRenderData();
+    this.fire('renderData', this.numPage, isPageAdd).then((obj) => {
+      this.renderPagination(obj);
     });
   }
 
-  afterRenderData() {
+  /**
+   * @param {HTMLElement} lastChild
+   * @param {Number} countRecords
+   */
+  renderPagination({ lastChild, countRecords = null }) {
+    if (this.loading === 'auto') {
+      this.observe(lastChild);
+    }
+
     this.checkScroll();
+
+    if (Number.isFinite(countRecords) && this.countRecords !== countRecords) {
+      this.recalculateNumberPages(countRecords);
+    }
+
     this.render();
   }
 
@@ -240,6 +256,9 @@ export class PagingControl extends Pagination {
     }
   }
 
+  /**
+   * @param {HTMLElement} lastChild
+   */
   observe(lastChild) {
     if (!(lastChild instanceof HTMLElement)) {
       console.error(
@@ -280,7 +299,7 @@ export class PagingControl extends Pagination {
     // insert 'Show More' button
     this.pagingBox.insertAdjacentHTML(
       'afterend',
-      this.template.showMoreTemplate()
+      this.template.showMoreTemplate(this.textShowMore)
     );
 
     this.showMoreElement = this.container.querySelector(this.showMoreSelector);

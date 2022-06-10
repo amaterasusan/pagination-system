@@ -9,7 +9,7 @@
 </head>
 
 <body>
-  <h2>Responsive Data Table with filtering and sorting</h2>
+  <h2>Data Table from json-server with filtering and sorting</h2>
   <div class="search-box">
     <input class="search" id="search-input" type="text" placeholder="Search">
     <button type="button" id="dg-search" class="dg-mt-btn dg-btn-search"></button>
@@ -17,7 +17,10 @@
   </div>
   <div class="container-table"></div>
   <div class="paging-container"></div>
-  
+
+  <div id="dimmer">
+    <div class="loader"></div>
+  </div>
   <div class="message message-error hide">
     <a class="notification-close">
       <svg viewbox="0 0 50 50">

@@ -6,6 +6,21 @@
   --btn-page-background: #e5e5e5;
   --color-hover: #f80707;
   --dg-color-prev-next: #0a77f3;
+  --dg-color-text-link: #118ba3;
+}
+
+a.custom-link {
+  cursor: pointer;
+  color: var(--dg-color-text-link);
+}
+
+.custom-checkbox {
+  display: inline-flex;
+}
+
+.custom-checkbox input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
 }
 
 /* paging */
@@ -124,6 +139,22 @@
   padding: 12px;
   text-align: center;
   cursor: pointer;
+}
+
+.show-more:active i.show-more-icon {
+  transform: rotate(25deg);
+}
+
+.show-more i.show-more-icon {
+  text-align: center;
+  font-size: 4em;
+  transition: all 0.3s linear;
+}
+
+.show-more-icon::before {
+  content: '\27F3';
+  font-style: normal;
+  font-weight: 900;
 }
 
 @media only screen and (min-device-width: 320px) and (max-device-width: 480px),

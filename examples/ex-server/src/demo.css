@@ -1,23 +1,24 @@
 :root {
   --body-background-color: #fff;
   --body-text-color: #6b7076;
-  --header-table-background: #3bb49f;
+  --header-table-background: #0097a7;
   --highlight-active-color: #fff;
   --dg-bgcolor: #f3f3f3;
-  --dg-color-text-lighter: #9fa3a9;
-  --title-color-1: #1818b8;
-  --title-color-2: rgb(61, 255, 171);
-  --border-color: rgba(82, 81, 81, 0.3);
-  --dg-sorted-color: #07fc97;
-  --dg-sorted-darker: #00a994;
+  --dg-color-hovertr: #d6e5f5;
   --dg-color-text: #747272;
+  --dg-color-text-lighter: #9fa3a9;
   --dg-color-border: #c6c6c6;
-  --dg-color-mt-btn-click: rgba(236, 240, 241, 0.3);
   --dg-color-ok: #3bb49f;
   --dg-color-ok-hover: #0cc987;
   --dg-color-reset: #8b0000;
   --dg-color-reset-hover: #ff0000;
   --dg-bgcolor-reset-hover: #f1f1f1;
+  --dg-color-mt-btn-click: rgba(236, 240, 241, 0.3);
+  --title-color-1: #2184a5;
+  --title-color-2: rgb(61, 255, 171);
+  --dg-sorted-color: #006064;
+  --dg-sorted-darker: #26c6da;
+  --loader-dimension: 2.2585em;
 }
 
 * {
@@ -28,7 +29,7 @@
 }
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: sans-serif;
   font-size: 1rem;
   background-color: var(--body-background-color);
   color: var(--body-text-color);
@@ -43,7 +44,7 @@ h2 {
   margin: 10px 15px 20px;
   padding: 0;
   background: linear-gradient(
-    to bottom,
+    to right,
     var(--title-color-1),
     var(--title-color-2)
   );
@@ -137,7 +138,7 @@ input {
 
 .container-table {
   margin: 8px 15px 0;
-  box-shadow: 0 0 6px 1px var(--border-color);
+  box-shadow: 0 0 6px 1px var(--dg-color-border);
 }
 
 .paging-container {
@@ -152,7 +153,7 @@ input {
 .dg-grid {
   table-layout: fixed;
   border-collapse: collapse;
-  font-size: 0.97em;
+  font-size: 1em;
   line-height: 1.2;
   width: 100%;
 }
@@ -203,6 +204,10 @@ input {
   border-bottom: 2px solid var(--header-table-background);
 }
 
+.dg-grid tbody tr:hover {
+  background-color: var(--dg-color-hovertr) !important;
+}
+
 .dg-grid.sortable th {
   cursor: pointer;
   text-transform: capitalize;
@@ -225,11 +230,11 @@ input {
 }
 
 .dg-grid.sortable th.sorted-asc:after {
-  content: '\21E3';
+  content: '\21A7';
 }
 
 .dg-grid.sortable th.sorted-desc:after {
-  content: '\21E1';
+  content: '\21A5';
 }
 
 .cell-label {
@@ -264,16 +269,74 @@ input[type='checkbox'].cell-checkbox:checked + .cell-content {
   animation: fade-in 0.5s forwards;
 }
 
-@keyframes fade-in {
-  0% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
-  100% {
-    opacity: 1;
-  }
+#dimmer {
+  position: fixed;
+  top: 0;
+  left: var(--sidebar-width);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  background: var(--body-background-color);
+  opacity: 0;
+  z-index: -10;
+  transition: opacity 0.3s ease-in-out;
+}
+
+#dimmer.active {
+  opacity: 0.4;
+  z-index: 9999;
+}
+
+.loader {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: 0px;
+  text-align: center;
+  z-index: 1000;
+  transform: translateX(-50%) translateY(-50%);
+}
+
+.loader:before {
+  position: absolute;
+  content: '';
+  top: 0%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 0.2em solid rgba(0, 0, 0, 0.1);
+}
+
+.loader:after {
+  position: absolute;
+  content: '';
+  top: 0%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  animation: loader 0.6s linear;
+  animation-iteration-count: infinite;
+  border-color: var(--title-color-1) transparent transparent;
+  border-style: solid;
+  border-width: 0.2em;
+
+  box-shadow: 0px 0px 0px 1px transparent;
+  border-radius: 50%;
+}
+
+.loader:before,
+.loader:after {
+  width: var(--loader-dimension);
+  height: var(--loader-dimension);
+  margin: 0em 0em 0em - (var(--loader-dimension) / 2);
+}
+
+#dimmer.active .loader {
+  display: block;
 }
 
 /* Message */
@@ -295,8 +358,8 @@ input[type='checkbox'].cell-checkbox:checked + .cell-content {
 
 .notification-close {
   position: absolute;
-  right: 4px;
-  top: 4px;
+  right: 8px;
+  top: 8px;
   display: block;
   height: 24px;
   width: 24px;
@@ -351,6 +414,37 @@ input[type='checkbox'].cell-checkbox:checked + .cell-content {
 .message.hide {
   transform: translateY(-100%);
   opacity: 0;
+}
+
+/* Active Animation */
+@keyframes fade-in {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-out {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes loader {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @media only screen and (min-device-width: 320px) and (max-device-width: 480px),

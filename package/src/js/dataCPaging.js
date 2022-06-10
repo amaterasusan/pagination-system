@@ -1,42 +1,90 @@
-import { DataPagingManager } from './dataPagingManager';
-import { PagingControl } from './pagingControl';
-import { getDataInstance } from './dataCRender';
+import { DataPagingInit } from './dataPagingInit';
 
 /**
  * @class DataCPaging
- * pagination initialization
- * @extends DataPagingManager
+ * API data pagination
+ * @extends DataPagingInit
  */
-export class DataCPaging extends DataPagingManager {
+export class DataCPaging extends DataPagingInit {
   /**
    * @constructor
-   * @param {*} options
-   * @param {HTMLElement} options.dataContainer - DOM element for data
-   * @param {Function} options.dataRenderFn - function for render data
-   *
-   * either options.data or options.url and options.urlParams
-   * depending on whether all data is received,
-   * or data is loaded from the server page by page
-   * @param {Array} options.data - if all data is received
-   * @param {String} options.url - url for loading data by page from server
-   * @param {Object} options.urlParams - url query params {limit, pageNumber}
-   * @param {String} [options.urlParams.limit] - optional, url query param name (number of items to display per page)
-   * @param {String} options.urlParams.pageNumber - url query param name (number of page)
-   * @param {String} [options.childSelector] - optional, child selector of collection for autoloading
-   * @param {String} [options.dimmerSelector] - optional, dimmer selector
-   * @param {HTMLElement} options.pagingContainer - DOM element for paging
-   * @param {Number} options.countRecords - total data count
-   * @param {Number} [options.perPage=10] - optional
-   * @param {Boolean} [options.isShowPerPage=true] - optional, show or not perPage dropbox
-   * @param {String} [options.loading='none'] - optional, loading can be 'auto'|'more'|'none'
+   * @param {Object} options
    */
   constructor(options) {
     super(options);
+  }
 
-    this.dataControl = getDataInstance(this.dataOptions);
+  /**
+   * returns Promise with an array of keys (field name)
+   * like [{name: 'id', type: 'numeric', title: 'id'}, {name: 'first_name', type: 'alpha', title: 'first name'}, ...]
+   * @returns {Promise} dataKeys
+   */
+  getDataKeys() {
+    return this.initialized.then(() => this.dataControl.dataKeys || []);
+  }
 
-    this.pagingControl = new PagingControl(this.pagingOptions);
+  /**
+   * @returns {Number} numPage
+   */
+  getNumPage() {
+    return this.pagingControl.numPage;
+  }
 
-    this.init();
+  /**
+   * @returns {Number} perPage
+   */
+  getPerPage() {
+    return this.pagingControl.perPage;
+  }
+
+  /**
+   * render pages
+   * @param {Number} numPage
+   * @returns {Promise}
+   */
+  render(numPage = 1) {
+    this.pagingControl.numPage = numPage;
+    return this.pagingControl.renderDataPagination();
+  }
+
+  /**
+   * sort data
+   * @param {Object} queryObj
+   * @param {Number} numPage
+   * queryObj:
+   * if options.url - like {'_sort': 'name', '_order': 'asc'}
+   * if options.data - {field: 'name', direction: 1, type: 'alpha'}
+   * direction: 1(ASC)|-1(DESC)
+   * type: 'numeric'|'date'|'alpha'
+   */
+  sortData(queryObj = {}, numPage = 1) {
+    this.dataControl.sortData(queryObj);
+    this.render(numPage);
+  }
+
+  /**
+   * filter data
+   * @param {Object} queryObj
+   * if options.url - like { q: 'andrew', country: 'spain' } for url query
+   * if options.data - like
+   * {
+   *   q: {value: 'andr'} // global search
+   *   id: { action: 'lte', value: 40 },
+   *   age: { action: 'in_range', value: [20, 30] },
+   * }
+   * @returns {Promise}
+   */
+  filterData(queryObj = {}) {
+    this.dataControl.filterData(queryObj);
+    return this.render(1).then(() => this.pagingControl.countRecords);
+  }
+
+  /**
+   * restore data after filtering
+   * @returns {Promise}
+   */
+  restoreData() {
+    this.dataControl.restoreData();
+    return this.render(1);
   }
 }

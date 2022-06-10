@@ -1,37 +1,38 @@
 import PaginationSystem from 'pagination-system';
-import './demo.css';
 import 'pagination-system/dist/pagination-system.min.css';
-import data from './static/data_100.json';
+import './demo.css';
 
-// instance of PaginationSystem class
+// instance PaginationSystem class
 let dataPaging;
 let errorMessageEl;
+
+const url = 'http://localhost:3000/users'; // test server url (json-server)
+const urlParams = {
+  limit: '_limit', // url query param name (number of items to display per page) optional
+  pageNumber: '_page', // url query param name (number of page),
+}; // url query params
+
+const sortParam = '_sort';
+const orderParam = '_order';
+const seachParam = 'q';
+
+//-- any other your server --
+// const url = 'http://test.com';
+// const urlParams = {
+//   limit: 'perpage',
+//   pageNumber: 'pageno',
+// }; // url query params
+
+// const sortParam = 'sort';
+// const orderParam = 'order';
+// const seachParam = 'glob';
 
 // sorted css classes
 const sortAscClass = 'sorted-asc';
 const sortDescClass = 'sorted-desc';
 
-// css class by type
-const classByType = {
-  numeric: 'sort-numeric',
-  date: 'sort-date',
-  alpha: 'sort-alpha',
-};
-
 window.addEventListener('DOMContentLoaded', () => {
-  // error pop-up
   errorMessageEl = document.querySelector('.message');
-  // close pop-up
-  document
-    .querySelector('.notification-close')
-    .addEventListener('click', () => toggleErrorMessage(false), false);
-
-  // make table
-  if (!data.length) {
-    toggleErrorMessage(true, 'Data array is empty!');
-    return;
-  }
-
   createTable();
   createDataPagingInst();
 });
@@ -53,8 +54,8 @@ function createTable() {
  * create instance of PaginationSystem class
  */
 async function createDataPagingInst() {
-  const dataRenderFn = (dataPage) => {
-    return `${dataPage
+  const dataRenderFn = (data) => {
+    return `${data
       .map(
         (row) =>
           `<tr>${Object.entries(row)
@@ -70,14 +71,23 @@ async function createDataPagingInst() {
       .join('')}`;
   };
 
+  /*
+    Table retrieving data page by page through HTTP.
+    About countRecords option:
+    It is recommended to return the total number of records in the 'X-Total-Count' header.
+    If you want to limit the amount of data, set urlExtraParams option
+  */
   const options = {
     dataContainer: document.querySelector('.dg-grid tbody'), // real container for data will be tbody
     dataRenderFn: dataRenderFn,
-    data: data || [],
+    url: url, // test server url (json-server)
+    urlParams: urlParams, // url query params
+    // urlExtraParams: { id_lte: 33, id_gte: 3 }, // use this one if you need to set some other url query parameters
+    dimmerSelector: '#dimmer',
     pagingContainer: document.querySelector('.paging-container'),
-    // countRecords: 12, // there is no need to set this parameter, the number of records will be counted
   };
 
+  // PaginationSystem
   try {
     dataPaging = new PaginationSystem(options);
     const dataKeys = await dataPaging
@@ -94,8 +104,18 @@ async function createDataPagingInst() {
   }
 }
 
-// set table header
-function setHeaderTable(fields = []) {
+/**
+ * Set Table Header
+ * @param {Array} fields
+ */
+function setHeaderTable(fields) {
+  // css class by type
+  const classByType = {
+    numeric: 'sort-numeric',
+    date: 'sort-date',
+    alpha: 'sort-alpha',
+  };
+
   const setHeader = (fields) => {
     return `<thead><tr>${fields
       .map(
@@ -114,7 +134,9 @@ function setHeaderTable(fields = []) {
   }
 }
 
-// set Events
+/**
+ * set Events
+ */
 function setEvents() {
   // Enter key event in a text box
   document
@@ -131,6 +153,10 @@ function setEvents() {
     .querySelector('#dg-cancel-search')
     .addEventListener('click', restoreData, false);
 
+  document
+    .querySelector('.notification-close')
+    .addEventListener('click', () => toggleErrorMessage(false), false);
+  
   const dgTH = document.querySelector('.dg-grid').querySelectorAll('thead th');
   // add event listener for sorting
   dgTH.forEach((th) => {
@@ -138,7 +164,10 @@ function setEvents() {
   });
 }
 
-// sorting event
+/**
+ * sorting event handling
+ * @param {*} event
+ */
 function sortColumn(event) {
   // is left mouse down
   let isLeftButton =
@@ -153,9 +182,6 @@ function sortColumn(event) {
   const sortHeader = target.closest('th');
   const newDirection = sortHeader.classList.contains(sortAscClass) ? -1 : 1;
   const headerName = sortHeader.dataset.header;
-  const type = ['numeric', 'date', 'alpha'].find((key) =>
-    sortHeader.classList.contains(classByType[key])
-  );
 
   // remove sort class
   const sortedHeader = document
@@ -171,14 +197,16 @@ function sortColumn(event) {
 
   // calling sortData method of PaginationSystem class
   const queryObj = {
-    field: headerName,
-    direction: newDirection,
-    type: type,
+    [sortParam]: headerName,
+    [orderParam]: newDirection === 1 ? 'ASC' : 'DESC',
   };
   dataPaging.sortData(queryObj, 1);
 }
 
-// Enter key event in a text box
+/**
+ * keypress event handling in a text box (Enter keypress)
+ * @param {*} event
+ */
 function beforeFilterData(event) {
   if (event.key === 'Enter') {
     event.preventDefault();
@@ -186,7 +214,10 @@ function beforeFilterData(event) {
   }
 }
 
-// filter data event
+/**
+ * search event handling (filter data)
+ * @param {*} event
+ */
 function filterData(event) {
   let searchEl = document.querySelector('#search-input');
 
@@ -195,17 +226,15 @@ function filterData(event) {
   }
 
   searchEl = searchEl.value.toLowerCase();
-  const queryObj = {
-    q: { value: searchEl },
-    // country: { action: 'eq', value: 'china' },
-    // age: { action: 'lte', value: 30 },
-    // name: { action: 'starts_with', value: 'm' },
-    // id: { action: 'in_range', value: [20, 50] }
-  };
+
+  // json server api search
+  // q - Full-text search
+  // {q: 'female', id_gte: 10, first_name_like: '^an', id_lte: 100}
+  const seachObj = { [seachParam]: searchEl };
 
   // calling filterData method of PaginationSystem class
   dataPaging
-    .filterData(queryObj)
+    .filterData(seachObj)
     .then((countRecords) => {
       console.log('Found:', countRecords);
     })
@@ -214,9 +243,14 @@ function filterData(event) {
     });
 }
 
-// restore data event
+/**
+ *  restore data event handling
+ * @param {*} event
+ */
 function restoreData(event) {
-  document.querySelector('#search-input').value = '';
+  const searchEl = document.querySelector('#search-input');
+  searchEl.value = '';
+
   // calling restoreData method of PaginationSystem class
   dataPaging.restoreData().catch((err) => {
     showError(err);

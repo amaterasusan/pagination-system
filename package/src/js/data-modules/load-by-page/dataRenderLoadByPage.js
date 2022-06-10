@@ -1,4 +1,5 @@
 import { DataManager } from '../dataManager';
+
 /**
  * @class DataRenderLoadByPage
  * loading data from server page by page and display
@@ -12,31 +13,35 @@ export class DataRenderLoadByPage extends DataManager {
    * @param {Function} options.dataRenderFn - function for render data
    * @param {String} options.url - url for loading data
    * @param {Object} options.urlParams - url query params {limit, pageNumber}
-   * @param {String} [options.urlParams.limit] - optional, url query param name (number of items to display per page)
-   * @param {String} options.urlParams.pageNumber - url query param name (number of page)
+   * @param {String} [options.urlParams.limit] - optional, URL query parameter name (number of items to display per page)
+   * @param {String} options.urlParams.pageNumber - URL query parameter name (number of page)
+   * @param {Object} [options.urlExtraParams] - optional, extra url params
    * @param {String} [options.childSelector] - optional, child selector of collection for autoloading
    * @param {String} [options.dimmerSelector] - optional, dimmer selector
    */
   constructor({ url, urlParams, ...options }) {
     super(options);
 
-    if (!url) {
-      throw new Error('url must be defined');
-    }
-
     if (!urlParams) {
-      throw new Error('urlParams must be defined');
+      throw new Error('`urlParams` property must be defined!');
     }
 
     if (!urlParams.pageNumber) {
-      throw new Error('urlParams.pageNumber must be defined');
+      throw new Error('`urlParams.pageNumber` property must be defined!');
     }
 
     // server url
     this.url = url;
+    this.urlBasic = this.url;
     this.urlParams = urlParams;
-    this.dimmerElement = options.dimmerSelector && document.querySelector(options.dimmerSelector);
+    this.urlExtraParams = options.urlExtraParams;
+    this.dimmerElement = document.querySelector(options.dimmerSelector);
     this.lastChild = null;
+
+    // set some extra parameters
+    if (this.urlExtraParams) {
+      this.setUrlQuery(this.urlExtraParams);
+    }
   }
 
   /**
@@ -45,8 +50,41 @@ export class DataRenderLoadByPage extends DataManager {
    * @returns {Promise}
    */
   renderPages(perPage, numPage) {
+    // set limit (number of entries per page) in url query
+    if (
+      (this.urlParams.limit && this.limitData !== perPage) ||
+      !this.limitData
+    ) {
+      this.setUrlQuery({
+        [`${this.urlParams.limit}`]: perPage,
+      });
+    }
+
     this.limitData = perPage;
+
     return this.renderData(numPage);
+  }
+
+  /**
+   * Loading a page from the server
+   * @returns {Promise}
+   */
+  loadServerData() {
+    this.realCountRecords = null;
+
+    return fetch(this.url).then((res) => {
+      this.realCountRecords = res.headers.get('x-total-count')
+        ? +res.headers.get('x-total-count')
+        : null;
+
+      if (this.realCountRecords === null) {
+        throw new Error(
+          `Response header 'X-Total-Count' doesn't exist,\n so the total number of entries is undefined!\n Check also URL parameters.`
+        );
+      }
+
+      return res.json();
+    });
   }
 
   /**
@@ -57,35 +95,32 @@ export class DataRenderLoadByPage extends DataManager {
   renderData(numPage, isPageAdd = false) {
     this.toggleDimmer(true);
 
-    return this.loadServerData(numPage)
+    // set page number in url query
+    this.setUrlQuery({
+      [`${this.urlParams.pageNumber}`]: numPage,
+    });
+
+    return this.loadServerData()
       .then((data) => {
+        if (!this.dataKeys && data.length) {
+          // set Data Keys
+          this.setDataKeys(data[0]);
+        }
+
         this.displayData(data, isPageAdd);
         this.toggleDimmer(false);
 
+        // for autoload
         if (this.childSelector) {
           this.lastChild = this.getLastChild();
         }
 
         return this.lastChild;
-        //
       })
       .catch((err) => {
         this.toggleDimmer(false);
-        throw new Error(err);
+        throw err;
       });
-  }
-
-  /**
-   * Loading a page from the server
-   * @param {Number} numPage
-   * @returns {Promise}
-   */
-  loadServerData(numPage = 1) {
-    const url = this.urlParams.limit
-      ? `${this.url}?${this.urlParams.limit}=${this.limitData}&${this.urlParams.pageNumber}=${numPage}`
-      : `${this.url}?${this.urlParams.pageNumber}=${numPage}`;
-
-    return fetch(url).then((res) => res.json());
   }
 
   /**
@@ -93,10 +128,61 @@ export class DataRenderLoadByPage extends DataManager {
    * @param {Array} dataPage
    * @param {Boolean} isPageAdd
    */
-  displayData(dataPage, isPageAdd = false) {
+  displayData(dataPage = [], isPageAdd = false) {
+    // checking cell content and replace html if need
+    this.checkContent(dataPage);
+
     this.container.innerHTML = !isPageAdd
       ? this.dataRenderFn(dataPage)
       : this.container.innerHTML + this.dataRenderFn(dataPage);
+  }
+
+  /**
+   * get url query params
+   * @returns
+   */
+  getQueryParams() {
+    const url = new URL(`${this.url}`);
+    return new URLSearchParams(url.search);
+  }
+
+  /**
+   * @param {*} queryObj like {key1: value1, key2: value2}
+   */
+  setUrlQuery(queryObj = {}) {
+    const params = this.setQueryParams(queryObj);
+    this.setUrl(params);
+  }
+
+  /**
+   * @param {*} params
+   * @param {Object} queryObj
+   * @returns {*} params
+   */
+  setQueryParams(queryObj = {}) {
+    let params = this.getQueryParams();
+    Object.entries(queryObj).forEach(([key, value]) => {
+      params.set(key, value);
+    });
+
+    return params;
+  }
+
+  removeQueryParams(queryObj = {}) {
+    let params = this.getQueryParams();
+
+    Object.keys(queryObj).forEach((key) => {
+      params.delete(key);
+    });
+
+    this.setUrl(params);
+  }
+
+  /**
+   * @param {*} params
+   */
+  setUrl(params) {
+    this.url = `${this.urlBasic}?${params.toString()}`;
   }
 
   /**

@@ -15,17 +15,15 @@ export class Pagination extends EventManager {
     super();
 
     if (!(options.container instanceof HTMLElement)) {
-      throw new Error('Paging Container is not HTMLElement');
-    }
-
-    if (!options.countRecords) {
-      throw new Error('countRecords is not set!');
+      throw new Error('`pagingContainer` property is not HTMLElement!');
     }
 
     this.container = options.container;
     this.perPage = options.perPage || 10;
-    this.countRecords = options.countRecords || 0;
+    this.countRecords = options.countRecords ?? null;
+    this.initCountRecords = this.countRecords;
     this.isShowPerPage = options.isShowPerPage ?? true;
+    this.textShowMore = options.textShowMore ?? 'show more';
     this.numPage = 1;
     this.activeBtns = [];
 
@@ -54,6 +52,15 @@ export class Pagination extends EventManager {
    */
   setNumberPages() {
     this.numberPages = Math.ceil(this.countRecords / this.perPage);
+  }
+
+  /**
+   * recalculate number of pages
+   * @param {Number} countRecords
+   */
+  recalculateNumberPages(countRecords = 1) {
+    this.countRecords = countRecords;
+    this.setNumberPages();
   }
 
   /**
@@ -91,7 +98,6 @@ export class Pagination extends EventManager {
       this.visiblePaging(true);
     } else {
       this.paginatorElement.innerHTML = '';
-      this.visiblePaging(false);
     }
 
     this.setActivePageBtn();
@@ -145,7 +151,6 @@ export class Pagination extends EventManager {
 
       if (currentPageBtn) {
         currentPageBtn.classList.add('active', 'current');
-        //currentPageBtn.disabled = true;
       }
 
       // buttons pressed before show more click
@@ -156,7 +161,6 @@ export class Pagination extends EventManager {
           );
           if (domElement) {
             domElement.classList.add('active');
-            //domElement.disabled = true;
           }
         });
       }
@@ -321,11 +325,11 @@ function PagingTemplate() {
   }
 
   /**
-   * html template for 'Shor More' button
+   * html template for 'Show More' button
    * @returns {String}
    */
-  function showMoreTemplate() {
-    return '<div class="show-more"><i class="fa fa-repeat fa-4x fa-fw" aria-hidden="true"></i> <span>more</span></div>';
+  function showMoreTemplate(textShowMore = '') {
+    return `<div class="show-more"><i class="show-more-icon" aria-hidden="true"></i> <span>${textShowMore}</span></div>`;
   }
 
   return {

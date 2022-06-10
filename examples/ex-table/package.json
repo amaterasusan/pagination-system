@@ -5,7 +5,8 @@
   "author": "Helen Nikitina <amaterasu.san@gmail.com>",
   "scripts": {
     "watch": "webpack --watch",
-    "build": "webpack"
+    "build": "webpack",
+    "start": "webpack-dev-server --mode development --open"
   },
   "keywords": [
     "table-pagination",

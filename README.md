@@ -129,19 +129,19 @@ A container for pagination can be the same as a container for data. In any case,
   @param {Object} queryObj  
   @param {Number} numPage  
   queryObj:  
-  if **options.url** - like 
+  
+  if **options.url** - like   
   ```javascript
     {'_sort': 'name', '_order': 'asc'}
-  ``` 
+  ```   
   depending on what query parameters your server supports to sort the data  
   
   if **options.data** - 
   ```javascript
     {field: 'name', direction: 1, type: 'alpha'}
-  ``` 
+  ```   
   direction: 1(ASC) | -1(DESC)  
   type: `'numeric'`|`'date'`|`'alpha'` 
-   
   
   * **filterData(queryObj)**    
   data filtering   

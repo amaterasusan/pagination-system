@@ -134,7 +134,20 @@ A container for pagination can be the same as a container for data. In any case,
   @param {Object} queryObj   
   if **options.url** - queryObj like -`{ q: 'andrew', country: 'spain' }`
   depending on what query parameters your server supports to search for records  
-  if **options.data**
+  if **options.data**  
+  All available actions:     
+    * **eq**    (equals)  
+    * **ne**    (not equal)  
+    * **lt**    (less than)  
+    * **lte**   (less than or equal)  
+    * **gt**    (greater than)  
+    * **gte**   (greater than or equal)  
+    * **in_range**  
+    * **contains**  
+    * **not_contains**  
+    * **starts_with**  
+    * **ends_with**   
+  
   ```javascript
     const dataPaging = new PaginationSystem(options);
     // queryObj like 
@@ -149,20 +162,7 @@ A container for pagination can be the same as a container for data. In any case,
       .then((countRecords) => {
         console.log('Found:', countRecords);
       });
-  ```    
-  All available actions:   
-    * **eq**    (equals)  
-    * **ne**    (not equal)  
-    * **lt**    (less than)  
-    * **lte**   (less than or equal)  
-    * **gt**    (greater than)  
-    * **gte**   (greater than or equal)  
-    * **in_range**  
-    * **contains**  
-    * **not_contains**  
-    * **starts_with**  
-    * **ends_with**  
-
+  ```      
   
 ## Examples
   * options.data

@@ -169,18 +169,18 @@ A container for pagination can be the same as a container for data. In any case,
         console.log('Found:', countRecords);
       });
   ```    
-    All available actions:     
-    **eq**    (equals)  
-    **ne**    (not equal)  
-    **lt**    (less than)    
-    **lte**   (less than or equal)  
-    **gt**    (greater than)  
-    **gte**   (greater than or equal)  
-    **in_range**  
-    **contains**  
-    **not_contains**  
-    **starts_with**  
-    **ends_with**  
+  All available actions:   
+    * **eq**    (equals)  
+    * **ne**    (not equal)  
+    * **lt**    (less than)  
+    * **lte**   (less than or equal)  
+    * **gt**    (greater than)  
+    * **gte**   (greater than or equal)  
+    * **in_range**  
+    * **contains**  
+    * **not_contains**  
+    * **starts_with**  
+    * **ends_with**  
     
   * **restoreData()**  
   restore data after filtering

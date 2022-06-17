@@ -1,6 +1,6 @@
 {
   "name": "pagination-system",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "data pagination system is a modern Vanilla JS and ES6 library for data pagination, sorting and filtering",
   "keywords": [
     "pagination",
@@ -28,7 +28,8 @@
   },
   "scripts": {
     "build": "rollup -c",
-    "watch": "rollup -c -w"
+    "watch": "rollup -c -w",
+    "lint": "eslint src"
   },
   "author": "Helen Nikitina <amaterasu.san@gmail.com>",
   "license": "MIT",
@@ -36,6 +37,7 @@
     "dist"
   ],
   "devDependencies": {
+    "eslint": "^8.17.0",
     "rollup": "^2.71.1",
     "rollup-plugin-import-css": "^3.0.3",
     "rollup-plugin-terser": "^7.0.2"

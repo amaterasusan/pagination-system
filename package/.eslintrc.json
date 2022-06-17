@@ -1,0 +1,26 @@
+{
+  "root": true,
+  "env": {
+    "es6": true,
+    "browser": true
+  },
+  "extends": "eslint:recommended",
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module",
+    "experimentalObjectRestSpread": true
+  },
+  "rules": {
+    "no-console": "off",
+    "no-cond-assign": 2,
+    "no-const-assign": 2,
+    "no-class-assign": 2,
+    "no-this-before-super": 2,
+    "no-unused-vars": 1,
+    "no-var": 2,
+    "object-shorthand": [
+      2,
+      "always"
+    ]
+  }
+}

@@ -23,6 +23,7 @@ export class EventManager {
    */
   unsubscribe(eventName) {
     if (this.events[eventName]) {
+      // eslint-disable-next-line no-unused-vars
       const { [eventName]: remove, ...rest } = this.events;
       this.events = rest;
     }

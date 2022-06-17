@@ -114,8 +114,8 @@ export const changeCellHtml = (arr = [], fields = [], typeValue) =>
  * @returns
  */
 const formatDate = (date) => {
-  var d = new Date(date),
-    month = '' + (d.getMonth() + 1),
+  const d = new Date(date);
+  let month = '' + (d.getMonth() + 1),
     day = '' + d.getDate(),
     year = d.getFullYear();
 
@@ -153,13 +153,19 @@ export const findData = (dataValue, filter) => {
   dataValue = convertValueByType(dataValue, type);
 
   if (!Array.isArray(filter.value)) {
-    filter.value = [filter.value];
+    return actionsInFilters[filter.action](
+      dataValue,
+      convertValueByType(filter.value, type)
+    );
+  } else if (filter.value.length === 2) {
+    return actionsInFilters[filter.action](
+      dataValue,
+      convertValueByType(filter.value[0], type),
+      convertValueByType(filter.value[1], type)
+    );
   }
-
-  const filterValue1 = convertValueByType(filter.value[0], type);
-  const filterValue2 = convertValueByType(filter.value[1], type) || null;
-
-  return actionsInFilters[filter.action](dataValue, filterValue1, filterValue2);
+  
+  return false;
 };
 
 export const actionsInFilters = {

@@ -137,7 +137,7 @@ export class DataPagingInit {
    */
   renderPages(perPage = 10, numPage = 1) {
     return this.dataControl.renderPages(perPage, numPage).then((lastChild) => ({
-      lastChild: lastChild,
+      lastChild,
       countRecords: this.dataControl.realCountRecords ?? null,
     }));
   }
@@ -152,7 +152,7 @@ export class DataPagingInit {
     return this.dataControl
       .renderData(numPage, isPageAdd)
       .then((lastChild) => ({
-        lastChild: lastChild,
+        lastChild,
       }));
   }
 

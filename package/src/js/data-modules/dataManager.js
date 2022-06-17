@@ -71,7 +71,7 @@ export class DataManager {
       const type = checkType(value);
       res.name = key;
       res.type = type;
-      res.title = key.split(/(?:_|\-)/gi).join(' ');
+      res.title = key.split(/(?:_|-)/gi).join(' ');
       dgFields = [...dgFields, res];
     }
 
